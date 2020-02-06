@@ -10,11 +10,7 @@ body {
   background-color: red;
 }
 
-.TD-male {
-  color: navy
-}
-
-.TD-female {
-  color: pink
+.TR-averages {
+  background-color: skyblue;
 }
 
