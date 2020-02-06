@@ -1,0 +1,20 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 1em;
+}
+
+.TD-alive {
+  background-color: green;
+}
+.TD-dead {
+  background-color: red;
+}
+
+.TD-male {
+  color: navy
+}
+
+.TD-female {
+  color: pink
+}
+
