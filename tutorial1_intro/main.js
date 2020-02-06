@@ -81,13 +81,14 @@ function buildTable(data) {
   const siblingColumn = data.map(d => {
     return parseInt(d["Siblings/Spouses Aboard"]);
   });
-  console.log(siblingColumn);
+
   const avgAge = avg(ageColumn);
   const avgFare = avg(fareColumn);
   const avgSibling = avg(siblingColumn);
   const avgKin = avg(kinColumn);
   rows.insert("td", ":first-child");
   const avgRow = tbody.insert("tr", ":first-child");
+  avgRow.attr("class", "TR-averages");
   avgRow
     .append("td")
     .attr("class", "font-weight-bold")
@@ -96,6 +97,7 @@ function buildTable(data) {
     .selectAll()
     .data(data.columns)
     .join("td")
+    .attr("class", "font-weight-bold")
     .text(d => {
       if (d === "Age") {
         return avgAge;
