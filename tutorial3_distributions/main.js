@@ -3,7 +3,7 @@
  * */
 const width = window.innerWidth * 0.7,
   height = window.innerHeight * 0.7,
-  margin = { top: 150, bottom: 150, left: 150, right: 150 },
+  margin = { top: 150, bottom: 150, left: 250, right: 150 },
   radius = 5;
 
 /** these variables allow us to access anything we manipulate in
@@ -97,6 +97,7 @@ function init() {
     .text("Amount");
 
   // add the yAxis
+  const dx = margin.left - 20;
   svg
     .append("g")
     .attr("class", "axis y-axis")
@@ -105,7 +106,7 @@ function init() {
     .append("text")
     .attr("class", "axis-label")
     .attr("y", "50%")
-    .attr("dx", "-5em")
+    .attr("dx", -dx)
     .attr("writing-mode", "vertical-rl")
     .text("Race");
 
