@@ -111,6 +111,7 @@ function init() {
 function draw() {
   // filter the data for the selectedParty
   let filteredData = state.data;
+  console.log("filter,", filteredData);
   // if there is a selectedParty, filter the data before mapping it to our elements
   if (state.selectedParty !== "All") {
     filteredData = state.data.filter(d => d.party === state.selectedParty);
