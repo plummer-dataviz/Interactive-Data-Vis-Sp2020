@@ -170,9 +170,9 @@ function draw() {
             enter =>
               enter
                 .transition() // initialize transition
-                .delay((d, i) => 500 * i+1) // delay on each element
+                .delay((d, i) => 50 * i+1) // delay on each element
                 .duration(500) // duration 500ms
-                .attr("cx", (d, i) => xScale(d.United_States)) //If I had more time I'd make this calculate the minimum radius
+                .attr("cx", (d, i) => xScale(d.United_States)) 
           ),
       update =>
         update.call(update =>
@@ -190,9 +190,9 @@ function draw() {
           // exit selections -- all the `.dot` element that no longer match to HTML elements
           exit
             .transition()
-            .delay((d, i) => 50 * i)
+            .delay((d, i) => 50 * (i + 1))
             .duration(500)
-            .attr("cx", d => d.United_States / 2000)
+            .attr("cx", margin.left)
             .remove()
         )
     );
