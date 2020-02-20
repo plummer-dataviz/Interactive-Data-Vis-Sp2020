@@ -162,7 +162,7 @@ function draw() {
                 return "purple";
             }
           })
-          .attr("r", d => d.United_States / 2000)
+          .attr("r", d => 10)
           .attr("cy", (d, i) => yScale(d.Race))
           .attr("cx", d => margin.left) // initial value - to be transitioned
           .call(
