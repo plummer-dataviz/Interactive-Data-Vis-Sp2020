@@ -25,8 +25,11 @@ let state = {
  * LOAD DATA
  * */
 d3.csv("median_household_income_by_race.csv", d3.autoType).then(raw_data => {
-  console.log("raw_data", raw_data);
-  state.data = raw_data;
+  const cleanLabelData = raw_data.map(rd => {
+    return { ...rd, Race: rd.Race.replace(/[#_]/g, " ") };
+  });
+  const sortedData = cleanLabelData.sort((a, b) => (a.United_States > b.United_States) ? 1 : -1 )
+  state.data = sortedData;
   init();
 });
 
@@ -135,6 +138,7 @@ function draw() {
     .join(
       enter =>
         // enter selections -- all data elements that don't have a `.dot` element attached to them yet
+        // MHP - would be nice to add a hover somehow
         enter
           .append("circle")
           .attr("class", "dot") // Note: this is important so we can identify it in future updates
@@ -143,21 +147,21 @@ function draw() {
           .attr("fill", d => {
             //if I had time, i'd color code
             switch (d.Race) {
-              case "White_alone,_NH":
+              case "White alone, NH":
                 return "orange";
-              case "Two_or_more_races":
+              case "Two or more races":
                 return "green";
-              case "Some_other_race_alone":
+              case "Some other race alone":
                 return "red";
-              case "Hawaiian_and_Other_Pacific_Islander":
+              case "Hawaiian and Other Pacific Islander":
                 return "purple";
-              case "Hispanic_or_Latino":
+              case "Hispanic or Latino":
                 return "blue";
-              case "Black_or_African_American_alone":
+              case "Black or African American alone":
                 return "brown";
-              case "Asian_Alone":
+              case "Asian Alone":
                 return "yellow";
-              case "American_Indian_and_Alaskan_Native":
+              case "American Indian and Alaskan Native":
                 return "#A5F2F3";
               default:
                 return "purple";
@@ -166,13 +170,12 @@ function draw() {
           .attr("r", d => 10)
           .attr("cy", (d, i) => yScale(d.Race))
           .attr("cx", d => margin.left) // initial value - to be transitioned
-          .call(
-            enter =>
-              enter
-                .transition() // initialize transition
-                .delay((d, i) => 50 * i+1) // delay on each element
-                .duration(500) // duration 500ms
-                .attr("cx", (d, i) => xScale(d.United_States)) 
+          .call(enter =>
+            enter
+              .transition() // initialize transition
+              .delay((d, i) => 50 * i + 1) // delay on each element
+              .duration(500) // duration 500ms
+              .attr("cx", (d, i) => xScale(d.United_States))
           ),
       update =>
         update.call(update =>
