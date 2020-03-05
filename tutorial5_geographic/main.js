@@ -138,11 +138,14 @@ function addCircles(svg, data, projection, delay) {
       if (acres < 2) return 2;
       return acres;
     })
-    .on("end", () => blink(data));
+    .on("end", () => {
+      if (data[0].status === "active") {
+        blink();
+      }
+    });
 }
 
-function blink(data) {
-  if (data[0].status !== "active") return;
+function blink() {
   d3.selectAll(`.active`)
     .transition()
     .duration(1000)
@@ -151,7 +154,7 @@ function blink(data) {
     .duration(1000)
     .attr("fill", "red")
     .on("end", () => {
-      blink(data);
+      blink();
     });
 }
 /**
