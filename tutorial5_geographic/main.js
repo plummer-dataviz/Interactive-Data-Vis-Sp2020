@@ -129,7 +129,6 @@ function addCircles(svg, data, projection, delay) {
     })
     .transition()
     .delay(delay)
-    .duration(delay)
     .attr("r", d => {
       let acres = d.acres !== "unknown" ? d.acres : 0.1;
       if (isNaN(acres)) acres = 1;
