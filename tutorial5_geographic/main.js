@@ -38,8 +38,8 @@ Promise.all([
   const outFires = fires.fires.filter(f => f.status === "out");
   const containedFires = fires.fires.filter(f => f.status === "contained");
   const activeFires = fires.fires.filter(f => f.status === "active");
-  const unkownFires = fires.fires.filter(f => f.status === "unknown");
-  state.fires = { outFires, containedFires, activeFires, unkownFires };
+  const unknownFires = fires.fires.filter(f => f.status === "unknown");
+  state.fires = { outFires, containedFires, activeFires, unknownFires };
   init();
 });
 
@@ -85,8 +85,9 @@ async function init() {
   const { outFires, containedFires, unknownFires, activeFires } = state.fires;
   console.log(outFires);
   addCircles(svg, outFires, projection, 1000);
-  addCircles(svg, containedFires, projection, 2000);
-  addCircles(svg, activeFires, projection, 3000);
+  addCircles(svg, unknownFires, projection, 2000);
+  addCircles(svg, containedFires, projection, 3000);
+  addCircles(svg, activeFires, projection, 4000);
 }
 
 function colorSelector(d) {
@@ -95,6 +96,8 @@ function colorSelector(d) {
       return "red";
     case "contained":
       return "green";
+    case "unknown":
+      return "gray";
     case "out":
     default:
       return "black";
