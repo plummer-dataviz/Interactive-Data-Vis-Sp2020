@@ -130,10 +130,12 @@ function addCircles(svg, data, projection, delay) {
     .transition()
     .delay(delay)
     .attr("r", d => {
-      let acres = d.acres !== "unknown" ? d.acres : 0.1;
+      let acres = d.acres !== "unknown" ? d.acres : 1;
+      acres = acres && acres.replace(",", "");
+      acres = parseFloat(acres);
       if (isNaN(acres)) acres = 1;
       if (acres > 10) return 10;
-      if (acres < 3) return 3;
+      if (acres < 2) return 2;
       return acres;
     })
     .on("end", () => blink(data));
