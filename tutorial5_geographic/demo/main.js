@@ -33,7 +33,7 @@ Promise.all([
 ]).then(([geojson, extremes]) => {
   state.geojson = geojson;
   state.extremes = extremes;
-  // console.log("state: ", state);
+  console.log("state: ", state);
   init();
 });
 
@@ -73,28 +73,31 @@ function init() {
   const GradCenterCoord = { latitude: 40.7423, longitude: -73.9833 };
   svg
     .selectAll("circle")
-    .data([GradCenterCoord])
+    .data(state.extremes)
     .join("circle")
-    .attr("r", 20)
+    .attr("r", 5)
     .attr("fill", "steelblue")
     .attr("transform", d => {
-      const [x, y] = projection([d.longitude, d.latitude]);
+      const [x, y] = projection([d.Long, d.Lat]);
       return `translate(${x}, ${y})`;
-    });
+    })
+    .on("mouusemove"), () => {
+      console.log('yooo');
+    }};
 
   // EXAMPLE 2: going from x, y => lat-long
   // this triggers any movement at all while on the svg
-  svg.on("mousemove", () => {
-    // we can use d3.mouse() to tell us the exact x and y positions of our cursor
-    const [mx, my] = d3.mouse(svg.node());
-    // projection can be inverted to return [lat, long] from [x, y] in pixels
-    const proj = projection.invert([mx, my]);
-    state.hover["longitude"] = proj[0];
-    state.hover["latitude"] = proj[1];
-    draw();
-  });
+  // svg.on("mousemove", () => {
+  //   // we can use d3.mouse() to tell us the exact x and y positions of our cursor
+  //   const [mx, my] = d3.mouse(svg.node());
+  //   // projection can be inverted to return [lat, long] from [x, y] in pixels
+  //   const proj = projection.invert([mx, my]);
+  //   state.hover["longitude"] = proj[0];
+  //   state.hover["latitude"] = proj[1];
+  //   draw();
+  // });
 
-  draw(); // calls the draw function
+  // draw(); // calls the draw function
 }
 
 /**

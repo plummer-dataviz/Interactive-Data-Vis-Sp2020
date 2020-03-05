@@ -14,7 +14,16 @@ let svg;
  * APPLICATION STATE
  * */
 let state = {
-  // + SET UP STATE
+  geojson: null,
+  fires: null,
+  hover: {
+    latitude: null,
+    longitude: null,
+    state: null,
+    name: null,
+    type: null,
+    status: null
+  }
 };
 
 /**
@@ -22,11 +31,15 @@ let state = {
  * Using a Promise.all([]), we can load more than one dataset at a time
  * */
 Promise.all([
-  d3.json("PATH_TO_YOUR_GEOJSON"),
-  d3.csv("PATH_TO_ANOTHER_DATASET", d3.autoType),
-]).then(([geojson, otherData]) => {
-  // + SET STATE WITH DATA
-  console.log("state: ", state);
+  d3.json("../data/usState.json"),
+  d3.json("fires.json", d3.autoType)
+]).then(([geojson, fires]) => {
+  state.geojson = geojson;
+  const outFires = fires.fires.filter(f => f.status === "out");
+  const containedFires = fires.fires.filter(f => f.status === "contained");
+  const activeFires = fires.fires.filter(f => f.status === "active");
+  const unkownFires = fires.fires.filter(f => f.status === "unknown");
+  state.fires = { outFires, containedFires, activeFires, unkownFires };
   init();
 });
 
@@ -34,7 +47,12 @@ Promise.all([
  * INITIALIZING FUNCTION
  * this will be run *one time* when the data finishes loading in
  * */
-function init() {
+async function init() {
+  // our projection and path are only defined once, and we don't need to access them in the draw function,
+  // so they can be locally scoped to init()
+  const projection = d3.geoAlbersUsa().fitSize([width, height], state.geojson);
+  const path = d3.geoPath().projection(projection);
+
   // create an svg element in our main `d3-container` element
   svg = d3
     .select("#d3-container")
@@ -42,17 +60,114 @@ function init() {
     .attr("width", width)
     .attr("height", height);
 
-  // + SET UP PROJECTION
-  // + SET UP GEOPATH
+  svg
+    .selectAll(".state")
+    // all of the features of the geojson, meaning all the states as individuals
+    .data(state.geojson.features)
+    .join("path")
+    .attr("d", path)
+    .attr("class", "state")
+    .attr("fill", "transparent")
+    .on("mouseover", d => {
+      // when the mouse rolls over this feature, do this
 
-  // + DRAW BASE MAP PATH
-  // + ADD EVENT LISTENERS (if you want)
+      const [mx, my] = d3.mouse(svg.node());
+      const proj = projection.invert([mx, my]);
+      state.hover = {
+        state: d.properties.NAME,
+        longitude: proj[0],
+        latitude: proj[1]
+      };
+      draw(); // re-call the draw function when we set a new hoveredState
+    });
 
-  draw(); // calls the draw function
+  // EXAMPLE 1: going from Lat-Long => x, y
+  const { outFires, containedFires, unknownFires, activeFires } = state.fires;
+  console.log(outFires);
+  addCircles(svg, outFires, projection, 1000);
+  addCircles(svg, containedFires, projection, 2000);
+  addCircles(svg, activeFires, projection, 3000);
 }
 
+function colorSelector(d) {
+  switch (d.status) {
+    case "active":
+      return "red";
+    case "contained":
+      return "green";
+    case "out":
+    default:
+      return "black";
+  }
+}
+
+function addCircles(svg, data, projection, delay) {
+  svg
+    .selectAll(`.${data[0].status}`)
+    .enter()
+    .data(data)
+    .join("circle")
+    .attr("class", d => d.status)
+    .attr("fill", d => colorSelector(d))
+    .attr("transform", d => {
+      const [x, y] = projection([d.lon, d.lat]);
+      return `translate(${x}, ${y})`;
+    })
+    .on("mouseover", d => {
+      state.hover = {
+        ...state.hover,
+        name: d.name,
+        type: d.type,
+        status: d.status,
+        near: d.geo.near,
+        acres: d.acres || "unknown"
+      };
+      draw();
+    })
+    .transition()
+    .delay(delay)
+    .duration(delay)
+    .attr("r", d => {
+      let acres = d.acres !== "unknown" ? d.acres : 0.1;
+      if (isNaN(acres)) acres = 1;
+      if (acres > 10) return 10;
+      if (acres < 3) return 3;
+      return acres;
+    })
+    .on("end", () => blink(data));
+}
+
+function blink(data) {
+  if (data[0].status !== "active") return;
+  d3.selectAll(`.active`)
+    .transition()
+    .duration(1000)
+    .attr("fill", "orange")
+    .transition()
+    .duration(1000)
+    .attr("fill", "red")
+    .on("end", () => {
+      blink(data);
+    });
+}
 /**
  * DRAW FUNCTION
  * we call this everytime there is an update to the data/state
  * */
-function draw() {}
+function draw() {
+  // return an array of [key, value] pairs
+  hoverData = Object.entries(state.hover);
+
+  d3.select("#hover-content")
+    .selectAll("div.row")
+    .data(hoverData)
+    .join("div")
+    .attr("class", "row")
+    .html(
+      d =>
+        // each d is [key, value] pair
+        d[1] // check if value exist
+          ? `${d[0]}: ${d[1]}` // if they do, fill them in
+          : null // otherwise, show nothing
+    );
+}
